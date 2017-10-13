@@ -30,6 +30,8 @@ function handleMouseClick(evt) {
 	if(showingWinScreen){
 		player1score = 0;
 		player2score = 0;
+		ballSpeedX = 6;
+		ballSpeedY = 6;
 		showingWinScreen =false;
 	}
 }
@@ -153,3 +155,9 @@ function colorCircle(centerX, centerY, radius, drawColor){
 	ctx.arc(centerX, centerY, radius, 0,Math.PI*2, true);
 	ctx.fill();
 }
+
+function changeBallSpeed(){
+	ballSpeedX += 5;
+	ballSpeedY += 5;
+}
+setInterval(changeBallSpeed, 5000);
