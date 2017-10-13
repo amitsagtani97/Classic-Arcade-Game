@@ -34,8 +34,23 @@ function handleMouseClick(evt) {
 	}
 }
 
+function playerMovement(evt)
+{
+	evt.preventDefault();
+	var paddle1Ycenter = paddle1Y + (PADDLE_HEIGHT/2);
+	if(evt.keyCode==38&&paddle1Ycenter>=0)
+	{
+		paddle1Y-=20;
+	}
+	else if(evt.keyCode==40&&paddle1Ycenter<=600)
+	{
+		paddle1Y+=20;
+	}
+}
+
 window.onload = function() {
 	canvas = document.getElementById("gameCanvas");
+	canvas.focus();
 	ctx = canvas.getContext('2d');
 	var framesPerSecond = 75;
 	setInterval(function(){
@@ -47,7 +62,9 @@ window.onload = function() {
 		var mousePos = calculateMousePos(evt);
 			paddle1Y = mousePos.y - PADDLE_HEIGHT/2;
 	});
+	document.body.addEventListener('keydown', playerMovement);
 }
+
 
 function ballReset() {
 	if(player1score >= WINNING_SCORE || player2score >= WINNING_SCORE){
