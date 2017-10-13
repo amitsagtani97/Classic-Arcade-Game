@@ -15,6 +15,9 @@ var paddle1Y = 250;
 var paddle2Y = 250;
 const PADDLE_HEIGHT = 100;
 
+var kbGoUp = false
+var kbGoDown = false
+
 function calculateMousePos(evt) {
 	var rect  = canvas.getBoundingClientRect();
 	var root = document.documentElement;
@@ -26,13 +29,53 @@ function calculateMousePos(evt) {
 	};
 }
 
-function handleMouseClick(evt) {
-	if(showingWinScreen){
+function newGame(){
 		player1score = 0;
 		player2score = 0;
 		showingWinScreen =false;
+		kbGoUp = false;
+		kbGoDown = false;
+}
+
+function handleMouseClick(evt) {
+	if(showingWinScreen){
+	newGame()
 	}
 }
+
+function onKeyDown(e) {
+	if(showingWinScreen){
+	newGame()
+	}
+	if(e.code == 'ArrowUp'){  // up arrow
+		kbGoUp = true;
+	}
+	if(e.code == 'ArrowDown'){  // down arrow
+		kbGoDown = true;
+	}
+}
+
+function onKeyUp(e) {
+	if(e.code == 'ArrowUp'){  // up arrow
+		kbGoUp = false;
+	}
+	if(e.code == 'ArrowDown'){  // down arrow
+		kbGoDown = false;
+	}
+}
+
+function playerMovement(){
+	if (kbGoUp && paddle1Y != 0){
+		paddle1Y -= 5
+		}
+
+	if(kbGoDown && paddle1Y != canvas.height - PADDLE_HEIGHT){
+		paddle1Y += 5
+		}
+}
+
+
+window.addEventListener('keydown', onKeyDown, false);
 
 window.onload = function() {
 	canvas = document.getElementById("gameCanvas");
@@ -44,10 +87,19 @@ window.onload = function() {
 	}, 1000/framesPerSecond);
 	canvas.addEventListener('mousedown', handleMouseClick);
 	canvas.addEventListener('mousemove', function(evt){
+		kbGoUp = false
+		kbGoDown = false
 		var mousePos = calculateMousePos(evt);
 			paddle1Y = mousePos.y - PADDLE_HEIGHT/2;
 	});
+	document.addEventListener('keydown', onKeyDown, false);
+	document.addEventListener('keyup', onKeyUp, false);
+
 }
+
+
+
+
 
 function ballReset() {
 	if(player1score >= WINNING_SCORE || player2score >= WINNING_SCORE){
@@ -73,6 +125,8 @@ function moveEverything(){
 	if(showingWinScreen){
 		return;
 	}
+	
+	playerMovement();
 	computerMovement();
 	ballX += ballSpeedX;
 	ballY += ballSpeedY;
@@ -133,7 +187,7 @@ function drawEverything() {
 		return;
 	}
 	drawNet();
-	colorRect(0, paddle1Y, 10, PADDLE_HEIGHT,'white')	//left player paddle	
+	colorRect(0, paddle1Y, 10, PADDLE_HEIGHT,'white', )	//left player paddle	
 	colorRect(canvas.width-10, paddle2Y, 10, PADDLE_HEIGHT,'white')
 	colorCircle(ballX, ballY, 10,'white'); //draws the ball
 	ctx.font = "30px Courier";
