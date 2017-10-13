@@ -50,7 +50,6 @@ function playerMovement(evt)
 
 window.onload = function() {
 	canvas = document.getElementById("gameCanvas");
-	console.log(canvas);
 	canvas.focus();
 	ctx = canvas.getContext('2d');
 	var framesPerSecond = 75;
