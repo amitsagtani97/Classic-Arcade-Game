@@ -15,6 +15,10 @@ var paddle1Y = 250;
 var paddle2Y = 250;
 const PADDLE_HEIGHT = 100;
 
+var reflectionCount = 0; // amount of times the player paddle reflected the ball
+var canvasCenterY;
+var canvasCenterX;
+
 function calculateMousePos(evt) {
 	var rect  = canvas.getBoundingClientRect();
 	var root = document.documentElement;
@@ -47,6 +51,9 @@ window.onload = function() {
 		var mousePos = calculateMousePos(evt);
 			paddle1Y = mousePos.y - PADDLE_HEIGHT/2;
 	});
+
+	canvasCenterX = canvas.width / 2.0;
+	canvasCenterY = canvas.height / 2.0;
 }
 
 function ballReset() {
@@ -57,16 +64,60 @@ function ballReset() {
 	ballSpeedX = -ballSpeedX
 	ballX = canvas.width/2;
 	ballY = canvas.height/2;
+
+	reflectionCount = 0;
 }
 
 function computerMovement() {
+
+	// vertical center of right paddle
 	var paddle2YCenter = paddle2Y + (PADDLE_HEIGHT/2);
-	if(paddle2YCenter < ballY-35){
-		paddle2Y += 6;			
-	}
-	else if(paddle2YCenter > ballY+35)
-		paddle2Y -= 6;
 	
+	const baseSpeed = 10.0; 	// normal speed of right paddle
+	const slowSpeed = 5.0;  	// slower speed
+	var speed = 0.0;        	// speed applied to paddle this frame
+	var doUseSlowSpeed = false; // whether the ball uses base or slow speed
+
+	// ball moves to player paddle and is on left side of canvas
+	if (ballSpeedX < 0 && ballX < canvas.width / 2) {
+
+		// move paddle towards center of play field
+		if (paddle2Y < canvasCenterY - 10)
+			speed = slowSpeed;
+		else if (paddle2Y > canvasCenterY + 10)
+			speed = -slowSpeed;
+
+	} else { // follow ball 
+
+		// depending on the reflection count, improve the probability of an slower moving paddle
+		// when the ball is close
+		doUseSlowSpeed = randomNumber(Math.min(reflectionCount * 6.0, 70.0), 100) > 80;
+		
+		// paddle is above the ball
+		if(paddle2YCenter < ballY - 10) {
+
+			// ball is close 
+			if(ballX > canvas.width - 120 && doUseSlowSpeed)
+				speed = slowSpeed;
+			else
+				speed = baseSpeed;
+
+		} else if (paddle2YCenter > ballY + 10) { // paddle is below the ball
+
+			// ball is close
+			if(ballX > canvas.width - 120 && doUseSlowSpeed)
+				speed = -slowSpeed;
+			else
+				speed = -baseSpeed;
+		}		
+	}
+
+	// generally move ball slower when ball is far away
+	// paddle speed increases exponentially as ball gets close
+	speed *= Math.max(0.25, Math.pow((ballX / canvas.width), 2));
+
+	// move paddle by determined speed
+	paddle2Y += speed;
 }
 
 function moveEverything(){
@@ -79,19 +130,20 @@ function moveEverything(){
 
 	if(ballX > canvas.width){
 		if(ballY > paddle2Y && 
-			ballY < paddle2Y+PADDLE_HEIGHT)
-			ballSpeedX = -ballSpeedX;
-		else{
-				player1score++;
+			ballY < paddle2Y+PADDLE_HEIGHT) {
+				ballSpeedX = -ballSpeedX;
+		} else {
+				player1score++;				
 				ballReset();
-				
-	}}
+		}
+	}
 	if(ballX < 0){
 		//
 		if(ballY > paddle1Y && 
-			ballY < paddle1Y+PADDLE_HEIGHT)
-			ballSpeedX = -ballSpeedX;
-		else{
+			ballY < paddle1Y+PADDLE_HEIGHT) {
+				ballSpeedX = -ballSpeedX;
+				reflectionCount++;
+		} else {
 				player2score++;
 				ballReset();
 				
@@ -152,4 +204,8 @@ function colorCircle(centerX, centerY, radius, drawColor){
 	ctx.beginPath();
 	ctx.arc(centerX, centerY, radius, 0,Math.PI*2, true);
 	ctx.fill();
+}
+
+function randomNumber(min, max) {
+	return Math.floor((Math.random() * max) + min);
 }
