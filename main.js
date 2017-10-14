@@ -29,6 +29,8 @@ function calculateMousePos(evt) {
 function handleMouseClick(evt) {
 	if(showingWinScreen){
 		player1score = 0;
+		ballSpeedX = 6;
+		ballSpeedY = 6;
 		player2score = 0;
 		showingWinScreen =false;
 	}
@@ -42,6 +44,7 @@ window.onload = function() {
 		moveEverything();
 		drawEverything();
 	}, 1000/framesPerSecond);
+	setInterval(increaseBallSpeed, 350000/framesPerSecond);	
 	canvas.addEventListener('mousedown', handleMouseClick);
 	canvas.addEventListener('mousemove', function(evt){
 		var mousePos = calculateMousePos(evt);
@@ -152,4 +155,17 @@ function colorCircle(centerX, centerY, radius, drawColor){
 	ctx.beginPath();
 	ctx.arc(centerX, centerY, radius, 0,Math.PI*2, true);
 	ctx.fill();
+}
+
+function increaseBallSpeed() {
+	if (ballSpeedX < 0) {
+		ballSpeedX--;
+	} else {
+		ballSpeedX++;
+	}
+	if (ballSpeedY < 0) {
+		ballSpeedY--;
+	} else {
+		ballSpeedY++;
+	}
 }
