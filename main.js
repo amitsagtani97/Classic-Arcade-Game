@@ -110,24 +110,21 @@ function moveEverything(){
 		return;
 	}
 
+	console.log('Y : ' + ballSpeedY + ' X : ' + ballSpeedX);
+
 	if (Date.now() > (changedLevelAt + timeInterval)) {
 		if (ballSpeedX < 0) {
-			if (ballSpeedY < ballSpeedX) {
-				ballSpeedY -= speedAdded;
-				ballSpeedX -= speedAdded;
-			} else {
-				ballSpeedX -= speedAdded;
-				ballSpeedY -= speedAdded;
-			}
+			ballSpeedX -= speedAdded;
 		} else {
-			if (ballSpeedY > ballSpeedX) {
-				ballSpeedY += speedAdded;
-				ballSpeedX += speedAdded;
-			} else {
-				ballSpeedX += speedAdded;
-				ballSpeedY += speedAdded;
-			}
+			ballSpeedX += speedAdded;
 		}
+
+		if (ballSpeedY < 0) {
+			ballSpeedY -= speedAdded;
+		} else {
+			ballSpeedY += speedAdded;
+		}
+
 		changedLevelAt = Date.now();
 	}
 
