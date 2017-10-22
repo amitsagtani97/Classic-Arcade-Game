@@ -27,7 +27,7 @@ const PADDLE_HEIGHT = 100;
 // Store the last level update in a variable
 var changedLevelAt = Date.now();
 // Setting the interval by which the speed will increase
-var timeInterval = 5 * 1000;
+var timeInterval = 5 * 1000; // in milliseconds
 // Speed added to the ball at each interval
 var speedAdded = 2;
 
