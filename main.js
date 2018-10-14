@@ -31,13 +31,16 @@ var timeInterval = 5 * 1000; // in milliseconds
 // Speed added to the ball at each interval
 var speedAdded = 2;
 
+var sign = 0;
+var keyboardSpeed = 0.5;
+
 // Calculating the position of the mouse relatively to the canvas
 function calculateMousePos(evt) {
-	var rect  = canvas.getBoundingClientRect();
+	var rect = canvas.getBoundingClientRect();
 	var root = document.documentElement;
 	var mouseX = evt.clientX - rect.left - root.scrollLeft;
 	var mouseY = evt.clientY - rect.top - root.scrollTop;
-	return{
+	return {
 		x: mouseX,
 		y: mouseY
 	};
@@ -46,14 +49,14 @@ function calculateMousePos(evt) {
 // If the game is over (showingWinScreen === true)
 // A user's click anywhere on the canvas will set back the scores to 0 and launch a new game
 function handleMouseClick(evt) {
-	if(showingWinScreen){
+	if (showingWinScreen) {
 		player1score = 0;
 		player2score = 0;
 		showingWinScreen = false;
 	}
 }
 
-window.onload = function() {
+window.onload = function () {
 	// Inserting the canvas in a targeted div
 	canvas = document.getElementById("gameCanvas");
 	// Setting the context to 2D
@@ -61,17 +64,33 @@ window.onload = function() {
 	// Defining how many times the canvas will render in one second
 	var framesPerSecond = 75;
 	// Starting the game
-	setInterval(function(){
+	setInterval(function () {
 		moveEverything();
 		drawEverything();
 	}, 1000 / framesPerSecond);
 	// Launching the handleMouseClick fn at each mousedown event
 	canvas.addEventListener('mousedown', handleMouseClick);
 	// Positionning the user's paddle depending on the mouse movements
-	canvas.addEventListener('mousemove', function(evt){
+	canvas.addEventListener('mousemove', function (evt) {
 		var mousePos = calculateMousePos(evt);
-			paddle1Y = mousePos.y - PADDLE_HEIGHT/2;
+		paddle1Y = mousePos.y - PADDLE_HEIGHT / 2;
 	});
+
+	document.addEventListener('keydown', function (evt) {
+		if (evt.code != "ArrowUp" && evt.code != "ArrowDown") {
+			return false;
+		}
+		sign = evt.code == "ArrowUp" ? -1 : 1;
+
+	});
+	document.addEventListener('keyup', function (evt) {
+		if (evt.code != "ArrowUp" && evt.code != "ArrowDown") {
+			return false;
+		}
+		sign = 0;
+	})
+
+
 }
 
 // Reset the position of the ball
@@ -103,12 +122,14 @@ function computerMovement() {
 	}
 }
 
-function moveEverything(){
+function moveEverything() {
 	// While the winning screen is displayed, the fn won't run
 	if (showingWinScreen) {
 		return;
 	}
-
+	if (paddle1Y + 6 * sign > -PADDLE_HEIGHT / 2 && paddle1Y + 6 * sign < canvas.height - PADDLE_HEIGHT / 2) {
+		paddle1Y += 6 * sign;
+	} else {}
 	console.log('Y : ' + ballSpeedY + ' X : ' + ballSpeedX);
 
 	if (Date.now() > (changedLevelAt + timeInterval)) {
@@ -164,56 +185,57 @@ function moveEverything(){
 	if (ballY < 0) {
 		ballSpeedY = -ballSpeedY;
 	}
+
+
 }
 
 
 // Drawing the game in the canvas ✏️
 
-function drawNet(){
-	for(var i=0; i<canvas.height; i+=40) {
-		colorRect(canvas.width/2 - 1, i, 2,20,'white');
+function drawNet() {
+	for (var i = 0; i < canvas.height; i += 40) {
+		colorRect(canvas.width / 2 - 1, i, 2, 20, 'white');
 	}
 }
 
 function drawEverything() {
-	colorRect(0, 0, canvas.width, canvas.height, 'green');  //blank screen
-	if(showingWinScreen){
+	colorRect(0, 0, canvas.width, canvas.height, 'green'); //blank screen
+	if (showingWinScreen) {
 		ctx.fillStyle = 'white'
 		ctx.fillRect(0, 250, canvas.width, 115);
 		ctx.fillStyle = 'green';
-		if(player1score >= WINNING_SCORE) {
+		if (player1score >= WINNING_SCORE) {
 			ctx.textAlign = "center";
 			ctx.font = "30px Arial";
-			ctx.fillText("Left Player Won!", canvas.width/2, canvas.height/2);
-		}
-		else if(player2score >= WINNING_SCORE) {
+			ctx.fillText("Left Player Won!", canvas.width / 2, canvas.height / 2);
+		} else if (player2score >= WINNING_SCORE) {
 			ctx.textAlign = "center";
 			ctx.font = "30px Arial";
-			ctx.fillText("Right Player Won!", canvas.width/2, canvas.height/2);
+			ctx.fillText("Right Player Won!", canvas.width / 2, canvas.height / 2);
 		}
 		ctx.textAlign = "center";
 		ctx.font = "18px Arial";
-		ctx.fillText('Continue', canvas.width/2, canvas.height/2 + 40);
+		ctx.fillText('Continue', canvas.width / 2, canvas.height / 2 + 40);
 		return;
 	}
 	drawNet();
-	colorRect(0, paddle1Y, 10, PADDLE_HEIGHT,'white')	//left player paddle
-	colorRect(canvas.width-10, paddle2Y, 10, PADDLE_HEIGHT,'white')
-	colorCircle(ballX, ballY, 10,'white'); //draws the ball
+	colorRect(0, paddle1Y, 10, PADDLE_HEIGHT, 'white') //left player paddle
+	colorRect(canvas.width - 10, paddle2Y, 10, PADDLE_HEIGHT, 'white')
+	colorCircle(ballX, ballY, 10, 'white'); //draws the ball
 	ctx.font = "30px Courier";
 	ctx.fillText(player1score, 50, 50);
-	ctx.fillText(player2score, canvas.width-50, 50)
+	ctx.fillText(player2score, canvas.width - 50, 50)
 
 }
 
-function colorRect(leftX,topY, width,height, drawColor){
+function colorRect(leftX, topY, width, height, drawColor) {
 	ctx.fillStyle = drawColor;
-	ctx.fillRect(leftX,topY, width,height);
+	ctx.fillRect(leftX, topY, width, height);
 }
 
-function colorCircle(centerX, centerY, radius, drawColor){
+function colorCircle(centerX, centerY, radius, drawColor) {
 	ctx.fillStyle = drawColor;
 	ctx.beginPath();
-	ctx.arc(centerX, centerY, radius, 0,Math.PI*2, true);
+	ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, true);
 	ctx.fill();
 }
